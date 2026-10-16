@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ukemi Listening Test</title>
+<style>
+/* Layout: one centred column of steps; each trial is a large play area above response buttons. Single dark look, matching the questionnaire and trainer. */
+:root{
+  --bg:#0c121b; --panel:#141d2a; --line:#273447; --fg:#e9edf2; --muted:#93a1b3;
+  --tatami:#c9b37e; --ok:#8fcf9a; --bad:#e6845c; --warn:#e6a35c;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:680px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand b{font-size:1.05rem}
+.brand .jp{color:var(--tatami);font-size:1.3rem;font-weight:600}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--muted);padding:6px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--tatami);color:#1a160c;font-weight:600}
+.bar{height:4px;border-radius:2px;background:var(--line);margin-bottom:18px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--tatami);width:0;transition:width .3s}
+h1{font-size:1.55rem;line-height:1.25;margin:0 0 10px;text-wrap:balance}
+h2{font-size:1.2rem;margin:0 0 6px;text-wrap:balance}
+p{margin:0 0 12px;max-width:62ch}
+.muted{color:var(--muted)}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tatami);margin-bottom:6px}
+section.step{display:grid;gap:18px}
+.field{display:grid;gap:6px}
+.field label{font-weight:600}
+select,input[type=number],textarea{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;width:100%}
+textarea{min-height:110px;resize:vertical}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.gdpr{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.gdpr summary{cursor:pointer;font-weight:600;color:var(--tatami)}
+.gdpr dl{margin:12px 0 0;display:grid;gap:10px}
+.gdpr dt{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.gdpr dd{margin:2px 0 0;overflow-wrap:anywhere}
+.consent{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.consent input{width:22px;height:22px;margin-top:2px;accent-color:var(--tatami);flex:none}
+.btns{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.btn{background:var(--tatami);color:#1a160c;border:0;border-radius:10px;padding:12px 22px;font:inherit;font-weight:700;cursor:pointer;min-height:48px}
+.btn.ghost{background:none;color:var(--fg);border:1px solid var(--line);font-weight:500}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--tatami);outline-offset:2px}
+.err{color:var(--warn);font-size:.92rem;min-height:1.4em}
+.player{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 16px;display:grid;justify-items:center;gap:10px;text-align:center}
+.playbtn{width:96px;height:96px;border-radius:50%;border:0;background:var(--tatami);color:#1a160c;font-size:2rem;cursor:pointer}
+.playbtn:disabled{opacity:.35}
+.playbtn.on{animation:pulse .9s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(.94)}}
+@media (prefers-reduced-motion:reduce){.playbtn.on{animation:none}}
+.resp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.resp .btn{min-height:58px}
+.resp3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.resp3 .btn{min-height:56px;padding:10px 8px;font-size:.95rem}
+.fb{border-radius:10px;padding:12px 14px;font-weight:600;text-align:center}
+.fb.ok{background:rgba(143,207,154,.14);color:var(--ok)}
+.fb.no{background:rgba(230,132,92,.14);color:var(--bad)}
+.examples{display:grid;gap:10px}
+.ex{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.ex .btn{min-height:40px;padding:8px 16px}
+.items{display:grid;gap:14px}
+.scale{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.scale button{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:8px;min-height:44px;font:inherit;font-family:var(--mono);cursor:pointer}
+.scale button[aria-pressed="true"]{background:var(--tatami);border-color:var(--tatami);color:#1a160c;font-weight:700}
+.anchors{display:flex;justify-content:space-between;gap:12px;font-size:.78rem;color:var(--muted)}
+.rank{display:grid;gap:10px}
+.rankrow{display:grid;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.rankrow .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pos{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px}
+.pos button{height:42px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--fg);font:inherit;font-family:var(--mono);cursor:pointer}
+.pos button[aria-pressed="true"]{background:var(--tatami);color:#1a160c;border-color:var(--tatami);font-weight:700}
+.mini{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 12px;font:inherit;font-size:.85rem;cursor:pointer}
+.counter{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stage canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;max-width:100%}
+.stagecap{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.done{text-align:center;padding-block:40px;display:grid;gap:10px;justify-items:center}
+.pid{font-family:var(--mono);font-size:1.3rem;color:var(--tatami);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 16px;user-select:all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="jp">受け身</span><b data-t="brand"></b></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button id="lang-en" type="button" aria-pressed="true">English</button>
+      <button id="lang-ja" type="button" aria-pressed="false">日本語</button>
+    </div>
+  </header>
+  <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+  <main id="app"></main>
+</div>
+<script>
+(function(){
+"use strict";
+/* ================= CONFIG ================= */
+const VERSION="s2-pilot";                       // change to "s2-v1" when the version is frozen
+const SUBMIT_URL="PASTE_APPS_SCRIPT_URL_HERE";  // Study 2 has its own Google Sheet + script
+const CONDITIONS=["timbral","m4","m5","m6","m7"]; // drop "m7" here to run four conditions
+const N_TRAIN=8, N_TEST=12, FORCE_BLOCK=true;
+const TYPES=["correct","late","noslap","head"];
+const ERRORS=["late","noslap","head"];
+
+/* ================= TEXT ================= */
+const T={
+ en:{
+  brand:"Ukemi Listening Test",
+  introEyebrow:"Listening study · about 12–15 minutes",
+  introTitle:"Can you hear a mistake in a breakfall?",
+  intro1:"You will hear backward breakfalls (ushiro ukemi) turned into sound: each time the hips, arms or back touch the mat, a sound plays. Some falls are done correctly, some contain a mistake. Your task is to tell which is which, by ear only.",
+  intro2:"You will try five different sound designs. For each, you first watch an animated figure with the sound, then practise with feedback, then do a short test by ear only.",
+  intro3:"Please use headphones and a quiet place. On iPhone, switch off silent mode. No judo or BJJ experience is needed.",
+  consent:"I am 18 or older, I have read the information about my data, and I agree to take part. I understand my answers are anonymous and that I can stop at any time before submitting.",
+  dataTitle:"Information about your data (GDPR)",
+  data:[
+   ["Who","Researcher: Eirini Liapikou, Ukemi Sound Trainer project. Contact: iriniliapikou@gmail.com"],
+   ["Purpose","To test how well different sound designs communicate correct and faulty judo breakfalls. Results will be published in research papers and a Master's thesis, only as group statistics."],
+   ["What is collected","Judo and BJJ belt and years of practice, musical training, age group, your answers and response times, ratings, ranking, optional comments, language and time taken. No name, email or contact details."],
+   ["Legal basis","Your consent (GDPR Article 6(1)(a)). Taking part is voluntary."],
+   ["Storage","Answers are stored in a Google Sheet in the researcher's Google account (Google acts as data processor and may log technical data such as IP address). They are kept until the research is finished and no longer than 5 years, then deleted."],
+   ["Your rights","Because no names are collected, your answers cannot be linked to you. After submitting you will see a participant code: send it to the contact address if you want your answers deleted. Please do not write personal details in the comments. You can complain to your national data protection authority (in Denmark: Datatilsynet)."]
+  ],
+  start:"Start", next:"Next", back:"Back", submit:"Submit", choose:"Choose…",
+  profileTitle:"About you",
+  belt:"Belt / grade", beltOpts:["No judo experience","White belt","Coloured belt (kyu)","Brown belt","Black belt (dan)"],
+  years:"Years of judo practice",
+  bjjBelt:"Brazilian jiu-jitsu (BJJ) belt", bjjOpts:["No BJJ experience","White","Blue","Purple","Brown","Black"],
+  bjjYears:"Years of BJJ practice",
+  music:"Formal musical training", musicOpts:["None","Less than 2 years","2–5 years","More than 5 years"],
+  age:"Age group", ageOpts:["18–29","30–44","45–59","60–74","75 or older","Prefer not to say"],
+  hearing:"Do you have a known hearing difficulty?", hearingOpts:["No","Yes, mild","Yes, I use hearing aids","Prefer not to say"],
+  prior:"Did you take part in the first Ukemi sound questionnaire?", priorOpts:["No","Yes","Not sure"],
+  needConsent:"Please tick the consent box to continue.",
+  needProfile:"Please answer all questions.",
+  hpTitle:"Sound check",
+  hpText:"Put on your headphones. Press Play: you will hear three tones. Set your volume so they are comfortable, then choose the quietest one.",
+  hpQ:"Which tone was the quietest?", tone:"Tone",
+  hpNext:"Sound check done",
+  blockEyebrow:"Sound design", of:"of",
+  famTitle:"Listen to the four kinds of fall",
+  famText:"Watch and listen: the figure shows what happens in each kind of fall, and the sound is how this design plays it. Play each at least once.",
+  types:{correct:"Correct fall",late:"Late arm slap",noslap:"No arm slap",head:"Head touches the mat"},
+  typesHelp:{correct:"hips → arm slap → back",late:"the arms land after the back",noslap:"the arms never slap the mat",head:"the head hits the mat at the end"},
+  play:"Play", listenAll:"Please listen to every example.",
+  trainTitle:"Practice", trainText:"Listen and decide. Afterwards you will see what actually happened.",
+  testTitle:"Test", testText:"Now sound only, without feedback. Answer as well as you can.",
+  q1:"Was this fall correct?", correctBtn:"Correct fall", faultyBtn:"Something was wrong",
+  q2:"What was wrong?",
+  replay:"Replay (1 left)", replayed:"Replayed",
+  right:"Right", wrong:"Not quite", itWas:"It was:", watchAgain:"Watch again", nowPlaying:"What happened",
+  attention:"Attention check: for this trial, press “Correct fall”, whatever you hear.",
+  rateTitle:"About this sound design",
+  rate:["The sound was pleasant.","I would use this sound in training."],
+  lo:"1 · Strongly disagree", hi:"Strongly agree · 7",
+  needRate:"Please answer both statements.",
+  forceTitle:"Soft or heavy landing?",
+  forceText:"One last short task with the same sound design as before (“impact”). It also encodes how hard you land. Listen to the two examples, then decide for each fall.",
+  soft:"Soft landing", heavy:"Heavy landing", forceQ:"Was this landing soft or heavy?",
+  rankTitle:"Your ranking",
+  rankHelp:"Which sound design would help you most to learn a correct breakfall? Give each a different place, 1 = most helpful.",
+  hear:"Hear",
+  needRank:"Please give each sound design a different place.",
+  comments:"Comments (optional)", commentsPh:"What made a sound easy or hard to judge?",
+  sending:"Sending…", sendFail:"Could not send. Check your internet connection and tap Submit again.",
+  doneTitle:"Thank you!", done1:"Your answers have been sent. You can close this page.",
+  pidNote:"Your participant code (keep it if you may want your answers deleted later):",
+  names:{timbral:"A",m4:"B",m5:"C",m6:"D",m7:"E"}
+ },
+ ja:{
+  brand:"受け身 聴取テスト",
+  introEyebrow:"聴取調査 · 約12〜15分",
+  introTitle:"受け身のミスを音で聞き分けられますか？",
+  intro1:"後ろ受け身を音に変換したものを聴いていただきます。腰・腕・背中が畳に触れるたびに音が鳴ります。正しい受け身と、ミスを含む受け身があります。耳だけで区別してください。",
+  intro2:"5種類の音のデザインを試します。それぞれ、まずアニメーションと音で確認し、正解が表示される練習の後、音だけの短いテストを行います。",
+  intro3:"ヘッドホンを使用し、静かな場所で行ってください。iPhoneはサイレントモードを解除してください。柔道やBJJの経験は不要です。",
+  consent:"私は18歳以上であり、データに関する説明を読んだうえで、本研究への参加に同意します。回答は匿名であること、また送信前であればいつでも中止できることを理解しています。",
+  dataTitle:"データの取り扱いについて（GDPR）",
+  data:[
+   ["実施者","研究者：Eirini Liapikou（Ukemi Sound Trainer プロジェクト）　連絡先：iriniliapikou@gmail.com"],
+   ["目的","さまざまな音のデザインが、正しい受け身と誤った受け身をどの程度伝えられるかを調べるためです。結果は研究論文および修士論文で、集団の統計としてのみ公表されます。"],
+   ["収集する情報","柔道とBJJの帯・経験年数、音楽教育の経験、年齢層、回答と反応時間、評価、順位、任意のコメント、選択した言語、所要時間。氏名・メールアドレスなどは収集しません。"],
+   ["法的根拠","ご本人の同意（GDPR第6条1項(a)）。参加は任意です。"],
+   ["保存","回答は研究者のGoogleアカウント内のGoogleスプレッドシートに保存されます（Googleはデータ処理者として、IPアドレスなどの技術的情報を記録する場合があります）。研究終了まで、最長5年間保管した後に削除します。"],
+   ["あなたの権利","氏名を収集しないため、回答をあなた個人と結びつけることはできません。送信後に参加者コードが表示されます。回答の削除を希望する場合は、そのコードを連絡先までお送りください。コメント欄には個人情報を書かないでください。各国のデータ保護当局（デンマークではDatatilsynet）に苦情を申し立てることもできます。"]
+  ],
+  start:"開始", next:"次へ", back:"戻る", submit:"送信", choose:"選択してください",
+  profileTitle:"あなたについて",
+  belt:"帯・段級", beltOpts:["柔道経験なし","白帯","色帯（級）","茶帯","黒帯（段）"],
+  years:"柔道歴（年）",
+  bjjBelt:"ブラジリアン柔術（BJJ）の帯", bjjOpts:["BJJ経験なし","白帯","青帯","紫帯","茶帯","黒帯"],
+  bjjYears:"BJJ歴（年）",
+  music:"音楽教育の経験", musicOpts:["なし","2年未満","2〜5年","5年以上"],
+  age:"年齢層", ageOpts:["18〜29歳","30〜44歳","45〜59歳","60〜74歳","75歳以上","回答しない"],
+  hearing:"聴覚に関して自覚している問題はありますか？", hearingOpts:["いいえ","はい、軽度","はい、補聴器を使用","回答しない"],
+  prior:"最初の受け身サウンド・アンケートに参加しましたか？", priorOpts:["いいえ","はい","わからない"],
+  needConsent:"続けるには、同意欄にチェックを入れてください。",
+  needProfile:"すべての項目に回答してください。",
+  hpTitle:"音の確認",
+  hpText:"ヘッドホンを着けて「再生」を押してください。3つの音が鳴ります。聞きやすい音量に調整し、最も小さい音を選んでください。",
+  hpQ:"最も小さかった音はどれですか？", tone:"音",
+  hpNext:"音の確認完了",
+  blockEyebrow:"音のデザイン", of:"/",
+  famTitle:"4種類の受け身を聴いてください",
+  famText:"人物のアニメーションが各受け身で何が起きているかを示し、音はこのデザインでの聞こえ方です。各例を少なくとも1回再生してください。",
+  types:{correct:"正しい受け身",late:"腕の叩きが遅い",noslap:"腕の叩きがない",head:"頭が畳に当たる"},
+  typesHelp:{correct:"腰 → 腕の叩き → 背中",late:"腕が背中の後に着く",noslap:"腕が畳を叩かない",head:"最後に頭が畳に当たる"},
+  play:"再生", listenAll:"すべての例を聴いてください。",
+  trainTitle:"練習", trainText:"聴いて判断してください。回答後、実際に何が起きたかが表示されます。",
+  testTitle:"テスト", testText:"今度は音だけで、正解の表示はありません。できるだけ正確に答えてください。",
+  q1:"この受け身は正しかったですか？", correctBtn:"正しい受け身", faultyBtn:"何かが間違っていた",
+  q2:"何が間違っていましたか？",
+  replay:"もう一度（残り1回）", replayed:"再生済み",
+  right:"正解", wrong:"不正解", itWas:"正解は：", watchAgain:"もう一度見る", nowPlaying:"実際に起きたこと",
+  attention:"確認：この問題では、聞こえた音に関係なく「正しい受け身」を押してください。",
+  rateTitle:"この音のデザインについて",
+  rate:["音が心地よかった。","練習でこの音を使いたいと思う。"],
+  lo:"1 · 全くそう思わない", hi:"非常にそう思う · 7",
+  needRate:"両方の質問に回答してください。",
+  forceTitle:"柔らかい着地か、強い着地か？",
+  forceText:"最後に短い課題があります。先ほどと同じ音のデザイン（「衝撃」）は、着地の強さも表します。2つの例を聴いてから、それぞれ判断してください。",
+  soft:"柔らかい着地", heavy:"強い着地", forceQ:"この着地は柔らかかったですか、強かったですか？",
+  rankTitle:"順位づけ",
+  rankHelp:"正しい受け身を身につけるのに、どの音のデザインが最も役立つと思いますか？ それぞれに異なる順位をつけてください（1 = 最も役立つ）。",
+  hear:"聴く",
+  needRank:"それぞれの音のデザインに異なる順位をつけてください。",
+  comments:"ご意見・ご感想（任意）", commentsPh:"判断しやすかった音、しにくかった音とその理由など",
+  sending:"送信中…", sendFail:"送信できませんでした。インターネット接続を確認して、もう一度「送信」を押してください。",
+  doneTitle:"ご協力ありがとうございました！", done1:"回答は送信されました。このページを閉じて構いません。",
+  pidNote:"参加者コード（後で回答の削除を希望する場合に備えて控えてください）：",
+  names:{timbral:"A",m4:"B",m5:"C",m6:"D",m7:"E"}
+ }
+};
+let lang="en"; const tt=k=>T[lang][k];
+
+/* ================= AUDIO ================= */
+let ctx,master,room;
+function initAudio(){
+ try{ if(navigator.audioSession) navigator.audioSession.type="playback"; }catch(e){}
+ if(ctx){ if(ctx.state==="suspended") ctx.resume(); return; }
+ ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:"interactive"});
+ master=ctx.createGain(); master.gain.value=.8;
+ const comp=ctx.createDynamicsCompressor(); comp.threshold.value=-14; comp.ratio.value=3; comp.attack.value=.003; comp.release.value=.25;
+ room=ctx.createConvolver(); const n=ctx.sampleRate*1.1,b=ctx.createBuffer(2,n,ctx.sampleRate);
+ for(let c=0;c<2;c++){const d=b.getChannelData(c); for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2.2);} room.buffer=b;
+ const rg=ctx.createGain(); rg.gain.value=.14; master.connect(comp); comp.connect(ctx.destination); room.connect(rg); rg.connect(comp);
+}
+let AT=0; const now=()=>AT;
+function voice({type="sine",f0,f1,dur=.5,attack=.004,peak=.5,dest,glide=dur*.6,pan=0}){
+ const o=ctx.createOscillator(),g=ctx.createGain(),p=ctx.createStereoPanner(); p.pan.value=pan; o.type=type;
+ o.frequency.setValueAtTime(f0,now()); if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),now()+glide);
+ g.gain.setValueAtTime(.0001,now()); g.gain.exponentialRampToValueAtTime(peak,now()+attack); g.gain.exponentialRampToValueAtTime(.0001,now()+dur);
+ o.connect(g); g.connect(p); p.connect(dest||master); if(!dest)p.connect(room); o.start(now()); o.stop(now()+dur+.05); return {o,g};
+}
+function noise(dur){ const n=Math.max(1,Math.floor(ctx.sampleRate*dur)),b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0); for(let i=0;i<n;i++)d[i]=Math.random()*2-1; const s=ctx.createBufferSource(); s.buffer=b; return s; }
+function slap({level=.5,cutoff=2200,dur=.12}){
+ const s=noise(dur),bp=ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=cutoff; bp.Q.value=.8;
+ const g=ctx.createGain(); g.gain.setValueAtTime(level,now()); g.gain.exponentialRampToValueAtTime(.0001,now()+dur);
+ s.connect(bp); bp.connect(g); g.connect(master); g.connect(room); s.start(now()); s.stop(now()+dur+.02);
+}
+function distCurve(k){ const n=256,c=new Float32Array(n); for(let i=0;i<n;i++){const x=i/n*2-1;c[i]=(1+k)*x/(1+k*Math.abs(x));} return c; }
+function alarm(){
+ for(let i=0;i<3;i++){ const o=ctx.createOscillator(),g=ctx.createGain(),ws=ctx.createWaveShaper(); o.type="sawtooth"; ws.curve=distCurve(40);
+  const s=now()+i*.12; o.frequency.setValueAtTime(233,s); o.frequency.setValueAtTime(196,s+.05);
+  g.gain.setValueAtTime(.0001,s); g.gain.linearRampToValueAtTime(.45,s+.01); g.gain.exponentialRampToValueAtTime(.0001,s+.1);
+  o.connect(ws); ws.connect(g); g.connect(master); o.start(s); o.stop(s+.12); }
+}
+const C4=261.63,E4=329.63,F4=349.23,G4=392;
+const SYN={
+ timbral(part){
+  if(part==="head") return alarm();
+  if(part==="hips"){ voice({f0:110,f1:55,dur:.34,glide:.22,peak:.55}); slap({level:.12,cutoff:160,dur:.08}); }
+  else if(part==="shoulders"){ voice({f0:440,f1:220,dur:.24,glide:.16,peak:.4}); slap({level:.1,cutoff:500,dur:.07}); }
+  else { [880,1320,1760].forEach((f,i)=>voice({f0:f*(1+i*.002),dur:.6-i*.08,peak:.22-i*.04})); slap({level:.18,cutoff:3200,dur:.04}); }
+ },
+ m4(part){ // Singing Tatami: one resonant mat, struck at different points
+  if(part==="head") return alarm();
+  const MODEF=[92,184,300,520,820];
+  const S={hips:{w:[1,.7,.35,.12,.05],dk:1.5,br:0},shoulders:{w:[.5,.85,.55,.3,.15],dk:.95,br:.4},wrists:{w:[.08,.25,.55,.9,1],dk:.7,br:1.4}}[part];
+  slap({level:.14+.06*S.br,cutoff:600+S.br*1600,dur:.05});
+  MODEF.forEach((f,i)=>{ if(S.w[i]>=.04) voice({f0:f,dur:(.25+f/2000)*S.dk*1.6,peak:.34*S.w[i],attack:.002}); });
+ },
+ m5(part,o={}){ // Impact intensity
+  if(part==="head") return alarm();
+  const I=Math.max(.05,Math.min(1,o.intensity??.6)), base={hips:90,shoulders:130,wrists:240}[part];
+  const lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=400+I*I*6800;
+  const ws=ctx.createWaveShaper(); ws.curve=distCurve(I*22); lp.connect(ws); ws.connect(master); ws.connect(room);
+  voice({f0:base*1.4,f1:base*.7,dur:.1+.22*I,glide:.1,peak:.2+.5*I,dest:lp});
+  voice({type:"triangle",f0:base*2.2,f1:base,dur:.06+.12*I,glide:.05,peak:.18*I,dest:lp});
+  slap({level:.55*I*I,cutoff:1200+I*4200,dur:.04+.05*I});
+ },
+ m6(part){ // Falling Tone accents (the continuous tone is scheduled in playFall)
+  if(part==="head") return alarm();
+  const col={hips:160,shoulders:430,wrists:680}[part];
+  voice({type:"triangle",f0:col,f1:col*.6,dur:.22,glide:.14,peak:.3});
+ },
+ m7(part){ // Resolving Chord notes
+  if(part==="head"){ [C4,C4*1.06,F4*1.4].forEach(f=>voice({f0:f,dur:.9,peak:.16})); return alarm(); }
+  const f={hips:C4,wrists:E4,shoulders:G4}[part];
+  voice({f0:f,dur:1.6,attack:.02,peak:.26}); voice({type:"triangle",f0:f*2,dur:1.2,attack:.02,peak:.06});
+ }
+};
+function m6Tone(t0,tFloor,tEnd){ // continuous tone: pitch falls with the body, then fades on the mat
+ const o=ctx.createOscillator(),sub=ctx.createOscillator(),lp=ctx.createBiquadFilter(),g=ctx.createGain();
+ o.type="triangle"; sub.type="sine"; lp.type="lowpass";
+ o.connect(lp); sub.connect(lp); lp.connect(g); g.connect(master); g.connect(room);
+ o.frequency.setValueAtTime(520,t0); sub.frequency.setValueAtTime(260,t0); lp.frequency.setValueAtTime(3100,t0);
+ o.frequency.exponentialRampToValueAtTime(70,tFloor); sub.frequency.exponentialRampToValueAtTime(35,tFloor); lp.frequency.exponentialRampToValueAtTime(500,tFloor);
+ g.gain.setValueAtTime(.0001,t0); g.gain.linearRampToValueAtTime(.2,t0+.08); g.gain.setValueAtTime(.2,tFloor); g.gain.exponentialRampToValueAtTime(.0001,tEnd);
+ o.start(t0); sub.start(t0); o.stop(tEnd+.05); sub.stop(tEnd+.05);
+}
+function m7Resolve(t,correct){
+ AT=t;
+ if(correct) [C4,E4,G4,C4*2].forEach(f=>{ const v=voice({f0:f,dur:2.2,attack:.06,peak:.2}); });
+ else [C4,C4*1.06,G4*.94,F4*1.42].forEach(f=>voice({f0:f,dur:1.4,peak:.14}));
+}
+/* Realistic-speed standing fall: 0.5 s descent, then contacts within ~0.5 s. */
+const J=()=> (Math.random()*2-1)*0.02;
+function timeline(type){
+ const hips=0.50+J(), slapT=hips+0.28+J(), back=hips+0.34+J();
+ if(type==="correct") return [["hips",hips],["wrists",slapT],["shoulders",back]];
+ if(type==="late")    return [["hips",hips],["shoulders",back],["wrists",back+0.15+J()]];
+ if(type==="noslap")  return [["hips",hips],["shoulders",back]];
+ if(type==="head")    return [["hips",hips],["wrists",slapT],["shoulders",back],["head",back+0.22+J()]];
+}
+function playFall(cond,type,opts={},given){
+ initAudio();
+ const t0=ctx.currentTime+0.12, ev=given||timeline(type);
+ if(cond==="m6") m6Tone(t0,t0+ev[0][1],t0+ev[ev.length-1][1]+0.5);
+ ev.forEach(([part,t])=>{ AT=t0+t; SYN[cond](part,opts); });
+ const last=ev[ev.length-1][1];
+ if(cond==="m7") m7Resolve(t0+last+0.35,type==="correct");
+ const dur=last+(cond==="m7"?1.4:0.7);
+ return {ev,t0,type,events:ev.map(([p,t])=>[p,+t.toFixed(3)]),ms:Math.round((dur+0.12)*1000)};
+}
+function tone(level,t){ AT=t; const g=ctx.createGain(); g.gain.value=level; g.connect(ctx.destination);
+ const o=ctx.createOscillator(); o.frequency.value=500; const e=ctx.createGain(); e.gain.setValueAtTime(.0001,t); e.gain.linearRampToValueAtTime(.3,t+.02); e.gain.setValueAtTime(.3,t+.48); e.gain.linearRampToValueAtTime(.0001,t+.5);
+ o.connect(e); e.connect(g); o.start(t); o.stop(t+.52); }
+
+/* ================= FIGURE ================= */
+const FLOOR=0.80;
+const P={
+ stand:{foot:[.575,.795],ankle:[.53,.79],knee:[.53,.63],hip:[.52,.47],lspine:[.52,.37],chest:[.52,.27],neck:[.52,.20],head:[.53,.14],elbow:[.52,.38],wrist:[.52,.485]},
+ crouch:{foot:[.575,.795],ankle:[.53,.79],knee:[.585,.665],hip:[.50,.615],lspine:[.49,.52],chest:[.485,.42],neck:[.485,.35],head:[.50,.295],elbow:[.525,.525],wrist:[.60,.585]},
+ hips:{foot:[.585,.79],ankle:[.54,.785],knee:[.60,.665],hip:[.485,.775],lspine:[.455,.695],chest:[.455,.60],neck:[.465,.52],head:[.495,.485],elbow:[.495,.685],wrist:[.585,.71]},
+ rolling:{foot:[.70,.615],ankle:[.645,.615],knee:[.58,.57],hip:[.49,.782],lspine:[.45,.775],chest:[.415,.765],neck:[.37,.74],head:[.325,.70],elbow:[.485,.758],wrist:[.575,.72]},
+ slapped:{foot:[.71,.705],ankle:[.65,.70],knee:[.585,.61],hip:[.49,.783],lspine:[.44,.778],chest:[.40,.775],neck:[.36,.755],head:[.315,.715],elbow:[.475,.80],wrist:[.585,.808]},
+ end:{foot:[.71,.71],ankle:[.65,.71],knee:[.585,.62],hip:[.49,.784],lspine:[.44,.779],chest:[.40,.776],neck:[.36,.756],head:[.315,.716],elbow:[.475,.802],wrist:[.585,.808]}
+};
+P.slapEarly=Object.assign({},P.rolling,{elbow:P.slapped.elbow,wrist:P.slapped.wrist});   // arms on the mat, back just arriving
+P.backArmUp=Object.assign({},P.slapped,{elbow:[.47,.70],wrist:[.53,.64]});              // back down, arms still in the air
+P.headDown=Object.assign({},P.end,{neck:[.35,.775],head:[.295,.782]});                    // head drops onto the mat
+function keyframes(type,ev){
+ const at=n=>(ev.find(e=>e[0]===n)||[])[1];
+ const hips=at("hips"), back=at("shoulders"), sl=at("wrists"), hd=at("head");
+ const k=[[0,P.stand],[0.18,P.stand],[hips-0.2,P.crouch],[hips,P.hips]];
+ if(type==="correct"||type==="head"){ k.push([sl,P.slapEarly],[back,P.slapped],[back+0.5,P.end]); if(type==="head") k.splice(k.length-1,1,[hd,P.headDown],[hd+0.4,P.headDown]); }
+ if(type==="late"){ k.push([back,P.backArmUp],[sl,P.slapped],[sl+0.4,P.end]); }
+ if(type==="noslap"){ k.push([back,P.backArmUp],[back+0.6,P.backArmUp]); }
+ return k;
+}
+const smooth=x=>x*x*(3-2*x);
+function poseAt(k,t){
+ if(t<=k[0][0]) return k[0][1]; if(t>=k[k.length-1][0]) return k[k.length-1][1];
+ let i=0; while(i<k.length-1&&k[i+1][0]<t) i++;
+ const [ta,a]=k[i],[tb,b]=k[i+1], u=smooth((t-ta)/Math.max(1e-6,tb-ta)), o={};
+ for(const j in a) o[j]=[a[j][0]+(b[j][0]-a[j][0])*u,a[j][1]+(b[j][1]-a[j][1])*u];
+ return o;
+}
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function drawPose(cv,pose,mark){
+ const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1, W=Math.max(10,Math.round(r.width*dpr)),H=Math.round(W*9/16);
+ if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
+ const g=cv.getContext("2d"); g.clearRect(0,0,W,H);
+ const S_=H*1.25, X=x=>(x-0.51)*S_+W/2, Y=y=>H*0.88-(FLOOR-y)*S_, fy=Y(FLOOR);
+ g.fillStyle="rgba(201,179,126,.18)"; g.fillRect(0,fy,W,H-fy);
+ g.strokeStyle=cssv("--tatami"); g.lineWidth=2*dpr; g.beginPath(); g.moveTo(0,fy); g.lineTo(W,fy); g.stroke();
+ const Pt=j=>[X(pose[j][0]),Y(pose[j][1])];
+ g.lineCap="round"; g.lineJoin="round"; g.strokeStyle=cssv("--fg"); g.lineWidth=5*dpr;
+ const line=js=>{g.beginPath(); js.forEach((j,i)=>{const [x,y]=Pt(j); i?g.lineTo(x,y):g.moveTo(x,y);}); g.stroke();};
+ line(["foot","ankle","knee","hip"]);
+ g.beginPath(); let [x0,y0]=Pt("hip"); g.moveTo(x0,y0); const [lx,ly]=Pt("lspine"),[cx,cy]=Pt("chest"); g.quadraticCurveTo(lx,ly,cx,cy); const [nx,ny]=Pt("neck"); g.lineTo(nx,ny); g.stroke();
+ g.lineWidth=4*dpr; line(["chest","elbow","wrist"]);
+ const [hx,hy]=Pt("head"); g.fillStyle=mark?cssv("--bad"):cssv("--fg"); g.beginPath(); g.arc(hx,hy,0.028*S_,0,7); g.fill();
+}
+let animRaf=0;
+function animate(cv,info){
+ cancelAnimationFrame(animRaf);
+ const k=keyframes(info.type,info.ev), lat=(ctx.outputLatency||0)+(ctx.baseLatency||0), end=k[k.length-1][0]+0.3;
+ const tick=()=>{ const t=ctx.currentTime-lat-info.t0; drawPose(cv,poseAt(k,Math.max(0,t)),info.type==="head"&&t>=(info.ev.find(e=>e[0]==="head")||[0,99])[1]);
+  if(t<end) animRaf=requestAnimationFrame(tick); };
+ animRaf=requestAnimationFrame(tick);
+}
+function stageEl(){
+ const st=h(`<div class="stage"><canvas aria-label="Animated backward breakfall"></canvas><div class="stagecap"><span class="cap"></span><span></span></div></div>`);
+ requestAnimationFrame(()=>drawPose(st.querySelector("canvas"),P.stand));
+ return st;
+}
+
+/* ================= HELPERS ================= */
+const shuffle=a=>{a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;};
+function invNorm(p){ // Acklam
+ const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239],
+ b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],
+ c=[-.007784894002430293,-.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],
+ d=[.007784695709041462,.3224671290700398,2.445134137142996,3.754408661907416];
+ const pl=.02425; let q,r;
+ if(p<pl){q=Math.sqrt(-2*Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+ if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+ q=p-.5; r=q*q; return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function sdt(trials){ // log-linear correction
+ const f=trials.filter(x=>x.type!=="correct"), c=trials.filter(x=>x.type==="correct");
+ const hits=f.filter(x=>x.resp==="faulty").length, fas=c.filter(x=>x.resp==="faulty").length;
+ const H=(hits+.5)/(f.length+1), F=(fas+.5)/(c.length+1);
+ return {hits,fas,nF:f.length,nC:c.length,dprime:invNorm(H)-invNorm(F),crit:-(invNorm(H)+invNorm(F))/2};
+}
+/* Williams design: balances first-order carry-over. */
+function williams(n){
+ const first=[0]; for(let i=1,lo=1,hi=n-1;first.length<n;i++){ first.push(i%2?lo++:hi--); }
+ const rows=[]; for(let r=0;r<n;r++) rows.push(first.map(x=>(x+r)%n));
+ if(n%2) rows.slice().forEach(r=>rows.push(r.slice().reverse()));
+ return rows;
+}
+const ORDERS=williams(CONDITIONS.length).map(r=>r.map(i=>CONDITIONS[i]).join(">"));
+
+/* ================= STATE ================= */
+let S;
+function makeTrials(){
+ const train=shuffle(["correct","correct","correct","correct",...shuffle(ERRORS.concat(ERRORS)).slice(0,4)]);
+ const test=shuffle(["correct","correct","correct","correct","correct","correct","late","late","noslap","noslap","head","head"]);
+ return {train,test};
+}
+function fresh(){
+ const order=ORDERS[Math.floor(Math.random()*ORDERS.length)].split(">");
+ S={step:"intro",consent:false,profile:{belt:"",years:"",bjj:"",bjjYears:"",music:"",age:"",hearing:"",prior:""},
+   order,orderSource:"random",hp:{answers:[],played:0},block:0,phase:"fam",fam:{},trial:0,
+   plan:Object.fromEntries(CONDITIONS.map(c=>[c,makeTrials()])),
+   attnBlock:CONDITIONS[Math.floor(Math.random()*CONDITIONS.length)],
+   trials:[],ratings:Object.fromEntries(CONDITIONS.map(c=>[c,[0,0]])),force:{trials:[],heard:{}},
+   rank:{},comments:"",started:Date.now()};
+ S.plan[S.attnBlock].test.splice(Math.floor(Math.random()*N_TEST),0,"attn");
+ fetchOrder();
+}
+async function fetchOrder(){
+ if(!/^https:/.test(SUBMIT_URL)) return;
+ const mine=S, ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),5000);
+ try{ const r=await fetch(SUBMIT_URL+"?action=order&n="+CONDITIONS.length,{signal:ctl.signal}); const j=await r.json();
+  const o=(j.order||"").split(">");
+  if(S===mine && (S.step==="intro"||S.step==="profile")){ if(o.length===CONDITIONS.length && CONDITIONS.every(c=>o.includes(c))){ S.order=o; S.orderSource="balanced"; } }
+ }catch(e){} finally{ clearTimeout(to); }
+}
+const totalUnits=()=>3+CONDITIONS.length*4+(FORCE_BLOCK&&CONDITIONS.includes("m5")?1:0)+1;
+function unitsDone(){
+ const base={intro:0,profile:1,hp:2}[S.step];
+ if(base!==undefined) return base;
+ if(S.step==="block") return 3+S.block*4+({fam:0,train:1,test:2,rate:3}[S.phase]);
+ if(S.step==="force") return 3+CONDITIONS.length*4;
+ return totalUnits();
+}
+
+/* ================= RENDER ================= */
+const app=document.getElementById("app");
+const h=html=>{const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+ document.documentElement.lang=lang;
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=tt(e.dataset.t));
+ document.getElementById("bar").style.width=(100*unitsDone()/totalUnits())+"%";
+ app.innerHTML="";
+ ({intro:vIntro,profile:vProfile,hp:vHp,block:vBlock,force:vForce,rank:vRank,done:vDone})[S.step]();
+ window.scrollTo({top:0});
+}
+function nav(backFn,label,nextFn){
+ const w=h(`<div><div class="err" role="alert"></div><div class="btns"></div></div>`),b=w.querySelector(".btns");
+ if(backFn){const x=h(`<button class="btn ghost" type="button">${tt("back")}</button>`); x.onclick=backFn; b.appendChild(x);} else b.appendChild(document.createElement("span"));
+ const n=h(`<button class="btn" type="button">${label}</button>`); n.onclick=()=>{const e=nextFn(); if(e) w.querySelector(".err").textContent=e;}; b.appendChild(n);
+ return w;
+}
+const go=(step)=>{S.step=step; render();};
+
+function vIntro(){
+ const s=h(`<section class="step"><div><div class="eyebrow">${tt("introEyebrow")}</div><h1>${tt("introTitle")}</h1>
+  <p>${tt("intro1")}</p><p>${tt("intro2")}</p><p class="muted">${tt("intro3")}</p></div>
+  <details class="gdpr"><summary>${tt("dataTitle")}</summary><dl>${tt("data").map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></details>
+  <label class="consent"><input type="checkbox" id="consent"><span>${tt("consent")}</span></label></section>`);
+ const cb=s.querySelector("#consent"); cb.checked=S.consent; cb.onchange=()=>S.consent=cb.checked;
+ s.appendChild(nav(null,tt("start"),()=>{ if(!S.consent) return tt("needConsent"); initAudio(); go("profile"); }));
+ app.appendChild(s);
+}
+const sel=(id,label,opts,val)=>`<div class="field"><label for="${id}">${label}</label><select id="${id}"><option value="">${tt("choose")}</option>${opts.map((o,i)=>`<option value="${i}"${String(val)===String(i)?" selected":""}>${o}</option>`).join("")}</select></div>`;
+const BELT=["none","white","kyu","brown","dan"],BJJ=["none","white","blue","purple","brown","black"],MUS=["none","lt2","2to5","gt5"],AGE=["18-29","30-44","45-59","60-74","75+","na"],HEAR=["no","mild","aids","na"],PRIOR=["no","yes","unsure"];
+function vProfile(){
+ const P=S.profile;
+ const s=h(`<section class="step"><h2>${tt("profileTitle")}</h2><div class="grid2">
+  ${sel("belt",tt("belt"),tt("beltOpts"),P.belt)}
+  <div class="field"><label for="years">${tt("years")}</label><input id="years" type="number" min="0" max="80" step="0.5" inputmode="decimal" value="${P.years}"></div>
+  ${sel("bjj",tt("bjjBelt"),tt("bjjOpts"),P.bjj)}
+  <div class="field"><label for="bjjYears">${tt("bjjYears")}</label><input id="bjjYears" type="number" min="0" max="80" step="0.5" inputmode="decimal" value="${P.bjjYears}"></div>
+  ${sel("music",tt("music"),tt("musicOpts"),P.music)}
+  ${sel("age",tt("age"),tt("ageOpts"),P.age)}
+  ${sel("hearing",tt("hearing"),tt("hearingOpts"),P.hearing)}
+  ${sel("prior",tt("prior"),tt("priorOpts"),P.prior)}</div></section>`);
+ ["belt","bjj","music","age","hearing","prior"].forEach(k=>s.querySelector("#"+k).onchange=e=>{P[k]=e.target.value;
+  if(k==="belt"&&e.target.value==="0"&&P.years===""){P.years="0"; s.querySelector("#years").value="0";}
+  if(k==="bjj"&&e.target.value==="0"&&P.bjjYears===""){P.bjjYears="0"; s.querySelector("#bjjYears").value="0";}});
+ const y=s.querySelector("#years"); y.oninput=()=>P.years=y.value;
+ const yb=s.querySelector("#bjjYears"); yb.oninput=()=>P.bjjYears=yb.value;
+ s.appendChild(nav(()=>go("intro"),tt("next"),()=>{ if(Object.values(P).some(v=>v===""))return tt("needProfile"); go("hp"); }));
+ app.appendChild(s);
+}
+function vHp(){
+ const quiet=Math.floor(Math.random()*3);
+ const s=h(`<section class="step"><h2>${tt("hpTitle")}</h2><p>${tt("hpText")}</p>
+  <div class="player"><button class="playbtn" type="button" aria-label="${tt("play")}">▶</button></div>
+  <div class="field"><span style="font-weight:600">${tt("hpQ")}</span><div class="resp3">${[0,1,2].map(i=>`<button class="btn ghost" type="button" data-i="${i}" disabled>${tt("tone")} ${i+1}</button>`).join("")}</div></div></section>`);
+ const pb=s.querySelector(".playbtn"), opts=[...s.querySelectorAll("[data-i]")];
+ pb.onclick=()=>{ initAudio(); const t=ctx.currentTime+.1; [0,1,2].forEach(i=>tone(i===quiet?0.28:1,t+i*.8)); S.hp.played++; pb.classList.add("on"); setTimeout(()=>{pb.classList.remove("on"); opts.forEach(o=>o.disabled=false);},2500); };
+ opts.forEach(o=>o.onclick=()=>{ S.hp.answers.push(+o.dataset.i===quiet?1:0);
+  if(S.hp.answers.length<2) vHpAgain(); else { S.step="block"; S.block=0; S.phase="fam"; S.fam={}; render(); } });
+ app.appendChild(s);
+}
+function vHpAgain(){ app.innerHTML=""; vHp(); }
+
+function cond(){ return S.order[S.block]; }
+function blockHead(){
+ return `<div><div class="eyebrow">${tt("blockEyebrow")} ${tt("names")[cond()]} · ${S.block+1} ${tt("of")} ${S.order.length}</div>`;
+}
+function vBlock(){
+ const c=cond();
+ if(S.phase==="fam") return vFam(c);
+ if(S.phase==="train"||S.phase==="test") return vTrial(c);
+ if(S.phase==="rate") return vRate(c);
+}
+function vFam(c){
+ const s=h(`<section class="step">${blockHead()}<h2>${tt("famTitle")}</h2><p class="muted">${tt("famText")}</p></div><div class="examples"></div></section>`);
+ const box=s.querySelector(".examples"), stage=stageEl(); box.before(stage);
+ const cv=stage.querySelector("canvas"), cap=stage.querySelector(".cap");
+ TYPES.forEach(ty=>{
+  const r=h(`<div class="ex"><div><b>${tt("types")[ty]}</b><div class="muted" style="font-size:.88rem">${tt("typesHelp")[ty]}</div></div><button class="btn ghost" type="button">▶ ${tt("play")}</button></div>`);
+  r.querySelector("button").onclick=()=>{ const inf=playFall(c,ty); cap.textContent=tt("types")[ty]; animate(cv,inf); S.fam[ty]=(S.fam[ty]||0)+1; };
+  box.appendChild(r);
+ });
+ s.appendChild(nav(null,tt("next"),()=>{ if(TYPES.some(t=>!S.fam[t])) return tt("listenAll"); S.phase="train"; S.trial=0; render(); }));
+ app.appendChild(s);
+}
+function vTrial(c){
+ const phase=S.phase, list=S.plan[c][phase], k=S.trial, type=list[k], attn=type==="attn";
+ const realType=attn?"correct":type;
+ const s=h(`<section class="step">${blockHead()}<h2>${phase==="train"?tt("trainTitle"):tt("testTitle")}</h2>
+   <p class="muted">${phase==="train"?tt("trainText"):tt("testText")}</p></div>
+   ${attn?`<div class="fb ok" style="text-align:left">${tt("attention")}</div>`:""}
+   <div class="player"><button class="playbtn" type="button" aria-label="${tt("play")}">▶</button>
+     <span class="counter">${k+1} / ${list.length}</span>
+     <button class="mini" type="button" id="replay" hidden>${tt("replay")}</button></div>
+   <div class="field"><span style="font-weight:600">${tt("q1")}</span>
+     <div class="resp"><button class="btn ghost" type="button" id="rC" disabled>${tt("correctBtn")}</button><button class="btn ghost" type="button" id="rF" disabled>${tt("faultyBtn")}</button></div></div>
+   <div class="field" id="q2" hidden><span style="font-weight:600">${tt("q2")}</span>
+     <div class="resp3">${ERRORS.map(e=>`<button class="btn ghost" type="button" data-e="${e}">${tt("types")[e]}</button>`).join("")}</div></div>
+   <div id="fb"></div></section>`);
+ const pb=s.querySelector(".playbtn"), rp=s.querySelector("#replay"), rC=s.querySelector("#rC"), rF=s.querySelector("#rF"), q2=s.querySelector("#q2"), fb=s.querySelector("#fb");
+ let info=null, tEnd=0, replays=0, resp=null, done=false;
+ const play=()=>{ info=playFall(c,realType); pb.disabled=true; pb.classList.add("on");
+   setTimeout(()=>{ pb.classList.remove("on"); tEnd=performance.now(); rC.disabled=false; rF.disabled=false; if(replays===0) rp.hidden=false; },info.ms); };
+ pb.onclick=()=>{ if(info) return; play(); };
+ rp.onclick=()=>{ replays++; rp.disabled=true; rp.textContent=tt("replayed"); rC.disabled=true; rF.disabled=true; play(); };
+ const finish=(errChoice)=>{
+  if(done) return; done=true;
+  const rt=Math.round(performance.now()-tEnd);
+  const rec={cond:c,phase,trial:k+1,type:attn?"attn":type,resp,errResp:errChoice||"",rt,replays,events:JSON.stringify(info.events),blockPos:S.block+1};
+  rec.correct = attn ? (resp==="correct") : (realType==="correct" ? resp==="correct" : resp==="faulty");
+  rec.errCorrect = (realType!=="correct" && resp==="faulty") ? (errChoice===type) : null;
+  S.trials.push(rec);
+  [...s.querySelectorAll("button")].forEach(b=>b.disabled=true);
+  rp.hidden=true;
+  const advance=()=>{ S.trial++; if(S.trial>=list.length){ if(phase==="train"){S.phase="test"; S.trial=0;} else {S.phase="rate";} } render(); };
+  if(phase==="train"){
+   const ok=rec.correct&&(rec.errCorrect!==false);
+   fb.appendChild(h(`<div style="display:grid;gap:12px"><div class="fb ${ok?"ok":"no"}">${ok?tt("right"):tt("wrong")} · ${tt("itWas")} ${tt("types")[type]}</div></div>`));
+   const wrap=fb.firstChild, stage=stageEl(); wrap.appendChild(stage);
+   const cv=stage.querySelector("canvas"); stage.querySelector(".cap").textContent=tt("nowPlaying");
+   const show=()=>animate(cv,playFall(c,realType,{},info.ev));
+   const bt=h(`<div class="btns"><button class="btn ghost" type="button">↻ ${tt("watchAgain")}</button><button class="btn" type="button">${tt("next")}</button></div>`);
+   bt.children[0].onclick=show; bt.children[1].onclick=advance; wrap.appendChild(bt);
+   setTimeout(show,300); setTimeout(()=>wrap.scrollIntoView({behavior:"smooth",block:"start"}),50);
+  } else setTimeout(advance,350);
+ };
+ rC.onclick=()=>{ resp="correct"; finish(""); };
+ rF.onclick=()=>{ resp="faulty"; if(attn){ finish(""); return; } rC.disabled=true; rF.disabled=true; rp.hidden=true; q2.hidden=false; };
+ q2.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>finish(b.dataset.e));
+ app.appendChild(s);
+}
+function scaleItem(label,val,on){
+ const it=h(`<div class="item" style="display:grid;gap:8px"><div style="font-weight:600">${label}</div><div class="scale"></div><div class="anchors"><span>${tt("lo")}</span><span>${tt("hi")}</span></div></div>`);
+ const sc=it.querySelector(".scale");
+ for(let v=1;v<=7;v++){ const b=h(`<button type="button" aria-pressed="${val===v}">${v}</button>`);
+  b.onclick=()=>{ on(v); sc.querySelectorAll("button").forEach((x,i)=>x.setAttribute("aria-pressed",String(i+1===v))); }; sc.appendChild(b); }
+ return it;
+}
+function vRate(c){
+ const R=S.ratings[c];
+ const s=h(`<section class="step">${blockHead()}<h2>${tt("rateTitle")}</h2></div>
+  <div class="examples"><div class="ex"><span>${tt("types").correct}</span><button class="btn ghost" type="button">▶ ${tt("hear")}</button></div></div><div class="items"></div></section>`);
+ s.querySelector(".ex button").onclick=()=>playFall(c,"correct");
+ const box=s.querySelector(".items"); tt("rate").forEach((q,i)=>box.appendChild(scaleItem(q,R[i],v=>R[i]=v)));
+ s.appendChild(nav(null,tt("next"),()=>{ if(R.some(v=>!v)) return tt("needRate");
+  S.block++; S.phase="fam"; S.fam={}; S.trial=0;
+  if(S.block>=S.order.length){ S.step=(FORCE_BLOCK&&CONDITIONS.includes("m5"))?"force":"rank"; }
+  render(); }));
+ app.appendChild(s);
+}
+function vForce(){
+ const F=S.force;
+ if(!F.list) F.list=shuffle(["soft","soft","soft","soft","heavy","heavy","heavy","heavy"]);
+ const I={soft:.25,heavy:.95};
+ if(!F.ready){
+  const s=h(`<section class="step"><div><h2>${tt("forceTitle")}</h2><p class="muted">${tt("forceText")}</p></div><div class="examples"></div></section>`);
+  const box=s.querySelector(".examples");
+  ["soft","heavy"].forEach(k=>{ const r=h(`<div class="ex"><b>${tt(k)}</b><button class="btn ghost" type="button">▶ ${tt("play")}</button></div>`);
+   r.querySelector("button").onclick=()=>{ playFall("m5","correct",{intensity:I[k]}); F.heard[k]=1; }; box.appendChild(r); });
+  s.appendChild(nav(null,tt("next"),()=>{ if(!F.heard.soft||!F.heard.heavy) return tt("listenAll"); F.ready=true; F.i=0; render(); }));
+  return app.appendChild(s);
+ }
+ const k=F.list[F.i];
+ const s=h(`<section class="step"><h2>${tt("forceTitle")}</h2>
+  <div class="player"><button class="playbtn" type="button">▶</button><span class="counter">${F.i+1} / ${F.list.length}</span></div>
+  <div class="field"><span style="font-weight:600">${tt("forceQ")}</span><div class="resp"><button class="btn ghost" type="button" data-k="soft" disabled>${tt("soft")}</button><button class="btn ghost" type="button" data-k="heavy" disabled>${tt("heavy")}</button></div></div></section>`);
+ const pb=s.querySelector(".playbtn"); let tEnd=0, played=false;
+ pb.onclick=()=>{ if(played) return; played=true; const inf=playFall("m5","correct",{intensity:I[k]}); pb.disabled=true; pb.classList.add("on");
+  setTimeout(()=>{ pb.classList.remove("on"); tEnd=performance.now(); s.querySelectorAll("[data-k]").forEach(b=>b.disabled=false); },inf.ms); };
+ s.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ F.trials.push({level:k,resp:b.dataset.k,correct:b.dataset.k===k,rt:Math.round(performance.now()-tEnd)});
+  F.i++; if(F.i>=F.list.length) S.step="rank"; render(); });
+ app.appendChild(s);
+}
+function vRank(){
+ const n=CONDITIONS.length;
+ const s=h(`<section class="step"><div><h2>${tt("rankTitle")}</h2><p class="muted">${tt("rankHelp")}</p></div><div class="rank"></div>
+  <div class="field"><label for="comments">${tt("comments")}</label><textarea id="comments" placeholder="${tt("commentsPh")}"></textarea></div></section>`);
+ const box=s.querySelector(".rank");
+ const draw=()=>{ box.innerHTML="";
+  S.order.forEach(c=>{
+   const row=h(`<div class="rankrow"><div class="top"><b>${tt("blockEyebrow")} ${tt("names")[c]}</b><button class="mini" type="button">▶ ${tt("hear")}</button></div><div class="pos" style="--n:${n}"></div></div>`);
+   row.querySelector(".mini").onclick=()=>playFall(c,"correct");
+   const pos=row.querySelector(".pos");
+   for(let r=1;r<=n;r++){ const b=h(`<button type="button" aria-pressed="${S.rank[c]===r}">${r}</button>`);
+    b.onclick=()=>{ const other=CONDITIONS.find(x=>x!==c&&S.rank[x]===r); if(other){ if(S.rank[c]) S.rank[other]=S.rank[c]; else delete S.rank[other]; } S.rank[c]=r; draw(); };
+    pos.appendChild(b); }
+   box.appendChild(row);
+  }); };
+ draw();
+ const ta=s.querySelector("#comments"); ta.value=S.comments; ta.oninput=()=>S.comments=ta.value;
+ s.appendChild(nav(null,tt("submit"),()=>{
+  const rs=CONDITIONS.map(c=>S.rank[c]); if(rs.some(x=>!x)||new Set(rs).size!==n) return tt("needRank");
+  if(S.sending) return;
+  if(!S.rec) S.rec=record();
+  S.sending=true; const btn=s.querySelector(".btns .btn:last-child"); btn.disabled=true; btn.textContent=tt("sending");
+  send(S.rec).then(ok=>{ S.sending=false; btn.disabled=false; btn.textContent=tt("submit");
+   if(ok) go("done"); else s.querySelector(".err").textContent=tt("sendFail"); });
+ }));
+ app.appendChild(s);
+}
+function vDone(){
+ app.appendChild(h(`<section class="step done"><div style="font-size:2.4rem;color:var(--ok)">✓</div><h1>${tt("doneTitle")}</h1><p>${tt("done1")}</p><p class="muted">${tt("pidNote")}</p><div class="pid">${S.rec?S.rec.pid:""}</div></section>`));
+}
+
+/* ================= RECORD + SEND ================= */
+function record(){
+ const P=S.profile;
+ const rec={pid:"S2"+Date.now().toString(36).toUpperCase(),timestamp:new Date().toISOString(),version:VERSION,lang,
+  belt:BELT[+P.belt],years:+P.years,bjj_belt:BJJ[+P.bjj],bjj_years:+P.bjjYears,music:MUS[+P.music],age:AGE[+P.age],hearing:HEAR[+P.hearing],prior_study1:PRIOR[+P.prior],
+  conditions:CONDITIONS.join(">"),order:S.order.join(">"),order_source:S.orderSource,
+  duration_s:Math.round((Date.now()-S.started)/1000),hp_correct:S.hp.answers.reduce((a,b)=>a+b,0),
+  attn_block:S.attnBlock, attn_pass:(S.trials.find(t=>t.type==="attn")||{}).correct===true,
+  comments:S.comments.trim()};
+ CONDITIONS.forEach(c=>{
+  const tr=S.trials.filter(t=>t.cond===c&&t.phase==="train"), te=S.trials.filter(t=>t.cond===c&&t.phase==="test"&&t.type!=="attn");
+  const d=sdt(te), ef=te.filter(t=>t.errCorrect!==null);
+  Object.assign(rec,{
+   [c+"_pos"]:S.order.indexOf(c)+1,
+   [c+"_train_acc"]:+(tr.filter(t=>t.correct).length/tr.length).toFixed(3),
+   [c+"_train_first4"]:tr.slice(0,4).filter(t=>t.correct).length,[c+"_train_last4"]:tr.slice(4).filter(t=>t.correct).length,
+   [c+"_test_acc"]:+(te.filter(t=>t.correct).length/te.length).toFixed(3),
+   [c+"_hits"]:d.hits,[c+"_fas"]:d.fas,[c+"_dprime"]:+d.dprime.toFixed(3),[c+"_crit"]:+d.crit.toFixed(3),
+   [c+"_errid_acc"]:ef.length?+(ef.filter(t=>t.errCorrect).length/ef.length).toFixed(3):"",
+   [c+"_rt_median"]:median(te.map(t=>t.rt)),[c+"_replays"]:te.reduce((a,t)=>a+t.replays,0),
+   [c+"_pleasant"]:S.ratings[c][0],[c+"_use"]:S.ratings[c][1],[c+"_rank"]:S.rank[c]
+  });
+ });
+ if(S.force.trials.length){ rec.force_acc=+(S.force.trials.filter(t=>t.correct).length/S.force.trials.length).toFixed(3); }
+ rec.trials_json=JSON.stringify(S.trials.map(t=>[t.cond,t.phase,t.trial,t.type,t.resp,t.errResp,t.rt,t.replays,t.blockPos]));
+ rec.force_json=JSON.stringify(S.force.trials.map(t=>[t.level,t.resp,t.rt]));
+ return rec;
+}
+function median(a){ if(!a.length) return ""; const s=a.slice().sort((x,y)=>x-y), m=Math.floor(s.length/2); return s.length%2?s[m]:Math.round((s[m-1]+s[m])/2); }
+async function send(rec){
+ try{ localStorage.setItem("ukemiS2.last",JSON.stringify(rec)); }catch(e){}
+ if(!/^https:/.test(SUBMIT_URL)) return true;
+ const body=JSON.stringify(rec);
+ try{ const r=await fetch(SUBMIT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body});
+  if(r.ok){ try{ const j=await r.json(); return j.ok!==false; }catch(e){ return true; } } return false;
+ }catch(e){ try{ await fetch(SUBMIT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body}); return true; }catch(e2){ return false; } }
+}
+
+/* ================= BOOT ================= */
+function setLang(l){ lang=l; document.getElementById("lang-en").setAttribute("aria-pressed",String(l==="en")); document.getElementById("lang-ja").setAttribute("aria-pressed",String(l==="ja")); render(); }
+document.getElementById("lang-en").onclick=()=>setLang("en");
+document.getElementById("lang-ja").onclick=()=>setLang("ja");
+window.__S2={get S(){return S;},ORDERS,williams,sdt,record};
+fresh(); render();
+})();
+</script>
+</body>
+</html>
