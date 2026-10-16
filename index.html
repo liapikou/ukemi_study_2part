@@ -153,8 +153,8 @@ const T={
   play:"Play", listenAll:"Please listen to every example.",
   trainTitle:"Practice", trainText:"Listen and decide. Afterwards you will see what actually happened.",
   testTitle:"Test", testText:"Now sound only, without feedback. Answer as well as you can.",
-  q1:"Was this fall correct?", correctBtn:"Correct fall", faultyBtn:"Something was wrong",
-  q2:"What was wrong?",
+  q1:"What did you hear?", correctBtn:"Correct fall", faultyBtn:"Something was wrong",
+  q2:"…or, if something was wrong, what was it?",
   replay:"Replay (1 left)", replayed:"Replayed",
   right:"Right", wrong:"Not quite", itWas:"It was:", watchAgain:"Watch again", nowPlaying:"What happened",
   attention:"Attention check: for this trial, press “Correct fall”, whatever you hear.",
@@ -216,8 +216,8 @@ const T={
   play:"再生", listenAll:"すべての例を聴いてください。",
   trainTitle:"練習", trainText:"聴いて判断してください。回答後、実際に何が起きたかが表示されます。",
   testTitle:"テスト", testText:"今度は音だけで、正解の表示はありません。できるだけ正確に答えてください。",
-  q1:"この受け身は正しかったですか？", correctBtn:"正しい受け身", faultyBtn:"何かが間違っていた",
-  q2:"何が間違っていましたか？",
+  q1:"何が聞こえましたか？", correctBtn:"正しい受け身", faultyBtn:"何かが間違っていた",
+  q2:"…または、間違っていた場合は何でしたか？",
   replay:"もう一度（残り1回）", replayed:"再生済み",
   right:"正解", wrong:"不正解", itWas:"正解は：", watchAgain:"もう一度見る", nowPlaying:"実際に起きたこと",
   attention:"確認：この問題では、聞こえた音に関係なく「正しい受け身」を押してください。",
@@ -562,16 +562,16 @@ function vTrial(c){
      <span class="counter">${k+1} / ${list.length}</span>
      <button class="mini" type="button" id="replay" hidden>${tt("replay")}</button></div>
    <div class="field"><span style="font-weight:600">${tt("q1")}</span>
-     <div class="resp"><button class="btn ghost" type="button" id="rC" disabled>${tt("correctBtn")}</button><button class="btn ghost" type="button" id="rF" disabled>${tt("faultyBtn")}</button></div></div>
-   <div class="field" id="q2" hidden><span style="font-weight:600">${tt("q2")}</span>
-     <div class="resp3">${ERRORS.map(e=>`<button class="btn ghost" type="button" data-e="${e}" disabled>${tt("types")[e]}</button>`).join("")}</div></div>
+     <button class="btn ghost" type="button" id="rC" disabled style="min-height:58px">✓ ${tt("correctBtn")}</button>
+     <span class="muted" style="font-size:.88rem;margin-top:4px">${tt("q2")}</span>
+     <div class="resp3" id="q2">${ERRORS.map(e=>`<button class="btn ghost" type="button" data-e="${e}" disabled>${tt("types")[e]}</button>`).join("")}</div></div>
    <div id="fb"></div></section>`);
- const pb=s.querySelector(".playbtn"), rp=s.querySelector("#replay"), rC=s.querySelector("#rC"), rF=s.querySelector("#rF"), q2=s.querySelector("#q2"), fb=s.querySelector("#fb");
+ const pb=s.querySelector(".playbtn"), rp=s.querySelector("#replay"), rC=s.querySelector("#rC"), q2=s.querySelector("#q2"), errB=[...s.querySelectorAll("[data-e]")], fb=s.querySelector("#fb");
  let info=null, tEnd=0, replays=0, resp=null, done=false;
  const play=()=>{ info=playFall(c,realType); pb.disabled=true; pb.classList.add("on");
-   setTimeout(()=>{ pb.classList.remove("on"); tEnd=performance.now(); rC.disabled=false; rF.disabled=false; if(replays===0) rp.hidden=false; },info.ms); };
+   setTimeout(()=>{ pb.classList.remove("on"); tEnd=performance.now(); rC.disabled=false; errB.forEach(b=>b.disabled=false); if(replays===0) rp.hidden=false; },info.ms); };
  pb.onclick=()=>{ if(info) return; play(); };
- rp.onclick=()=>{ replays++; rp.disabled=true; rp.textContent=tt("replayed"); rC.disabled=true; rF.disabled=true; play(); };
+ rp.onclick=()=>{ replays++; rp.disabled=true; rp.textContent=tt("replayed"); rC.disabled=true; errB.forEach(b=>b.disabled=true); play(); };
  const finish=(errChoice)=>{
   if(done) return; done=true;
   const rt=Math.round(performance.now()-tEnd);
@@ -594,8 +594,7 @@ function vTrial(c){
   } else setTimeout(advance,350);
  };
  rC.onclick=()=>{ resp="correct"; finish(""); };
- rF.onclick=()=>{ resp="faulty"; if(attn){ finish(""); return; } rC.disabled=true; rF.disabled=true; rp.hidden=true; q2.hidden=false; q2.querySelectorAll("[data-e]").forEach(b=>b.disabled=false); };
- q2.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ if(resp!=="faulty") return; finish(b.dataset.e); });
+ errB.forEach(b=>b.onclick=()=>{ resp="faulty"; finish(b.dataset.e); });
  app.appendChild(s);
 }
 function scaleItem(label,val,on){
