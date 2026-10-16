@@ -98,7 +98,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   </header>
   <div class="bar" aria-hidden="true"><i id="bar"></i></div>
   <main id="app"></main>
-  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-16 · 4-button answer</p>
+  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-16b · 4-button answer</p>
 </div>
 <script>
 (function(){
@@ -336,6 +336,7 @@ function timeline(type){
 }
 function playFall(cond,type,opts={},given){
  initAudio();
+ if(ctx.state!=="running"){ try{ ctx.resume(); }catch(e){} }
  const t0=ctx.currentTime+0.15, ev=given||timeline(type);
  if(cond==="m6") m6Tone(t0,t0+ev[0][1],t0+ev[ev.length-1][1]+0.5);
  ev.forEach(([part,t])=>{ AT=t0+t; SYN[cond](part,opts); });
@@ -571,7 +572,10 @@ function vTrial(c){
    <div id="fb"></div></section>`);
  const pb=s.querySelector(".playbtn"), rp=s.querySelector("#replay"), rC=s.querySelector("#rC"), q2=s.querySelector("#q2"), errB=[...s.querySelectorAll("[data-e]")], fb=s.querySelector("#fb");
  let info=null, tEnd=0, replays=0, resp=null, done=false;
- const play=()=>{ info=playFall(c,realType); pb.disabled=true; pb.classList.add("on");
+ const play=()=>{
+   try{ info=playFall(c,realType); }
+   catch(e){ logErr("play",e); info={events:[],ms:1500,ev:[],t0:0,type:realType}; }
+   pb.disabled=true; pb.classList.add("on");
    setTimeout(()=>{ pb.classList.remove("on"); tEnd=performance.now(); rC.disabled=false; errB.forEach(b=>b.disabled=false); if(replays===0) rp.hidden=false; },info.ms); };
  pb.onclick=()=>{ if(info) return; play(); };
  rp.onclick=()=>{ replays++; rp.disabled=true; rp.textContent=tt("replayed"); rC.disabled=true; errB.forEach(b=>b.disabled=true); play(); };
@@ -697,6 +701,7 @@ function record(){
   });
  });
  if(S.force.trials.length){ rec.force_acc=+(S.force.trials.filter(t=>t.correct).length/S.force.trials.length).toFixed(3); }
+ rec.errors=ERRS.join(" | ")+" | ua="+navigator.userAgent.slice(0,140);
  rec.trials_json=JSON.stringify(S.trials.map(t=>[t.cond,t.phase,t.trial,t.type,t.resp,t.errResp,t.rt,t.replays,t.blockPos]));
  rec.force_json=JSON.stringify(S.force.trials.map(t=>[t.level,t.resp,t.rt]));
  return rec;
@@ -710,6 +715,17 @@ async function send(rec){
   if(r.ok){ try{ const j=await r.json(); return j.ok!==false; }catch(e){ return true; } } return false;
  }catch(e){ try{ await fetch(SUBMIT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body}); return true; }catch(e2){ return false; } }
 }
+
+/* ================= ERRORS ================= */
+const ERRS=[];
+function logErr(where,e){
+ const msg=where+": "+(e&&e.message||e); ERRS.push(msg.slice(0,200));
+ let el=document.getElementById("errbox");
+ if(!el){ el=document.createElement("p"); el.id="errbox"; el.className="muted"; el.style.cssText="font-size:.75rem;color:var(--warn);text-align:right"; document.querySelector(".wrap").appendChild(el); }
+ el.textContent="Technical note for the researcher: "+msg.slice(0,160);
+}
+window.addEventListener("error",e=>logErr("error",e.error||e.message));
+window.addEventListener("unhandledrejection",e=>logErr("promise",e.reason));
 
 /* ================= BOOT ================= */
 function setLang(l){ lang=l; document.getElementById("lang-en").setAttribute("aria-pressed",String(l==="en")); document.getElementById("lang-ja").setAttribute("aria-pressed",String(l==="ja")); render(); }
