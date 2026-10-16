@@ -14,6 +14,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5}
 body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .wrap{max-width:680px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -103,7 +104,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 "use strict";
 /* ================= CONFIG ================= */
 const VERSION="s2-pilot";                       // change to "s2-v1" when the version is frozen
-const SUBMIT_URL="PASTE_APPS_SCRIPT_URL_HERE";  // Study 2 has its own Google Sheet + script
+const SUBMIT_URL="https://script.google.com/macros/s/AKfycbyCnCWHfidaL0MF3JfmSx1JWstGbWxReIBONt7cCK0nk36QY07fpkHgxQSYkeAtx0bu/exec";  // Study 2 has its own Google Sheet + script
 const CONDITIONS=["timbral","m4","m5","m6","m7"]; // drop "m7" here to run four conditions
 const N_TRAIN=8, N_TEST=12, FORCE_BLOCK=true;
 const TYPES=["correct","late","noslap","head"];
@@ -563,7 +564,7 @@ function vTrial(c){
    <div class="field"><span style="font-weight:600">${tt("q1")}</span>
      <div class="resp"><button class="btn ghost" type="button" id="rC" disabled>${tt("correctBtn")}</button><button class="btn ghost" type="button" id="rF" disabled>${tt("faultyBtn")}</button></div></div>
    <div class="field" id="q2" hidden><span style="font-weight:600">${tt("q2")}</span>
-     <div class="resp3">${ERRORS.map(e=>`<button class="btn ghost" type="button" data-e="${e}">${tt("types")[e]}</button>`).join("")}</div></div>
+     <div class="resp3">${ERRORS.map(e=>`<button class="btn ghost" type="button" data-e="${e}" disabled>${tt("types")[e]}</button>`).join("")}</div></div>
    <div id="fb"></div></section>`);
  const pb=s.querySelector(".playbtn"), rp=s.querySelector("#replay"), rC=s.querySelector("#rC"), rF=s.querySelector("#rF"), q2=s.querySelector("#q2"), fb=s.querySelector("#fb");
  let info=null, tEnd=0, replays=0, resp=null, done=false;
@@ -593,8 +594,8 @@ function vTrial(c){
   } else setTimeout(advance,350);
  };
  rC.onclick=()=>{ resp="correct"; finish(""); };
- rF.onclick=()=>{ resp="faulty"; if(attn){ finish(""); return; } rC.disabled=true; rF.disabled=true; rp.hidden=true; q2.hidden=false; };
- q2.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>finish(b.dataset.e));
+ rF.onclick=()=>{ resp="faulty"; if(attn){ finish(""); return; } rC.disabled=true; rF.disabled=true; rp.hidden=true; q2.hidden=false; q2.querySelectorAll("[data-e]").forEach(b=>b.disabled=false); };
+ q2.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ if(resp!=="faulty") return; finish(b.dataset.e); });
  app.appendChild(s);
 }
 function scaleItem(label,val,on){
