@@ -98,6 +98,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   </header>
   <div class="bar" aria-hidden="true"><i id="bar"></i></div>
   <main id="app"></main>
+  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-16 · 4-button answer</p>
 </div>
 <script>
 (function(){
@@ -266,7 +267,9 @@ function slap({level=.5,cutoff=2200,dur=.12}){
  const g=ctx.createGain(); g.gain.setValueAtTime(level,now()); g.gain.exponentialRampToValueAtTime(.0001,now()+dur);
  s.connect(bp); bp.connect(g); g.connect(master); g.connect(room); s.start(now()); s.stop(now()+dur+.02);
 }
-function distCurve(k){ const n=256,c=new Float32Array(n); for(let i=0;i<n;i++){const x=i/n*2-1;c[i]=(1+k)*x/(1+k*Math.abs(x));} return c; }
+// Odd length so that silence (input 0) maps exactly to 0: an even-length curve outputs a DC offset
+// before the oscillator starts, which is heard as a click at the start of the stimulus.
+function distCurve(k){ const n=257,c=new Float32Array(n); for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=(1+k)*x/(1+k*Math.abs(x));} return c; }
 function alarm(){
  for(let i=0;i<3;i++){ const o=ctx.createOscillator(),g=ctx.createGain(),ws=ctx.createWaveShaper(); o.type="sawtooth"; ws.curve=distCurve(40);
   const s=now()+i*.12; o.frequency.setValueAtTime(233,s); o.frequency.setValueAtTime(196,s+.05);
@@ -333,13 +336,13 @@ function timeline(type){
 }
 function playFall(cond,type,opts={},given){
  initAudio();
- const t0=ctx.currentTime+0.12, ev=given||timeline(type);
+ const t0=ctx.currentTime+0.15, ev=given||timeline(type);
  if(cond==="m6") m6Tone(t0,t0+ev[0][1],t0+ev[ev.length-1][1]+0.5);
  ev.forEach(([part,t])=>{ AT=t0+t; SYN[cond](part,opts); });
  const last=ev[ev.length-1][1];
  if(cond==="m7") m7Resolve(t0+last+0.35,type==="correct");
  const dur=last+(cond==="m7"?1.4:0.7);
- return {ev,t0,type,events:ev.map(([p,t])=>[p,+t.toFixed(3)]),ms:Math.round((dur+0.12)*1000)};
+ return {ev,t0,type,events:ev.map(([p,t])=>[p,+t.toFixed(3)]),ms:Math.round((dur+0.15)*1000)};
 }
 function tone(level,t){ AT=t; const g=ctx.createGain(); g.gain.value=level; g.connect(ctx.destination);
  const o=ctx.createOscillator(); o.frequency.value=500; const e=ctx.createGain(); e.gain.setValueAtTime(.0001,t); e.gain.linearRampToValueAtTime(.3,t+.02); e.gain.setValueAtTime(.3,t+.48); e.gain.linearRampToValueAtTime(.0001,t+.5);
