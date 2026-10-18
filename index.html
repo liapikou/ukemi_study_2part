@@ -98,13 +98,13 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   </header>
   <div class="bar" aria-hidden="true"><i id="bar"></i></div>
   <main id="app"></main>
-  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-18 · auto-save + resume</p>
+  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-18b · s2-v1 · late slap 80 ms</p>
 </div>
 <script>
 (function(){
 "use strict";
 /* ================= CONFIG ================= */
-const VERSION="s2-pilot";                       // change to "s2-v1" when the version is frozen
+const VERSION="s2-v1";                       // change to "s2-v1" when the version is frozen
 const SUBMIT_URL="https://script.google.com/macros/s/AKfycbyCnCWHfidaL0MF3JfmSx1JWstGbWxReIBONt7cCK0nk36QY07fpkHgxQSYkeAtx0bu/exec";  // Study 2 has its own Google Sheet + script
 const CONDITIONS=["timbral","m4","m5","m6","m7"]; // drop "m7" here to run four conditions
 const N_TRAIN=8, N_TEST=12, FORCE_BLOCK=true;
@@ -115,7 +115,7 @@ const ERRORS=["late","noslap","head"];
 const T={
  en:{
   brand:"Ukemi Listening Test",
-  introEyebrow:"Listening study · about 12–15 minutes",
+  introEyebrow:"Listening study · about 15–20 minutes",
   introTitle:"Can you hear a mistake in a breakfall?",
   intro1:"You will hear backward breakfalls (ushiro ukemi) turned into sound: each time the hips, arms or back touch the mat, a sound plays. Some falls are done correctly, some contain a mistake. Your task is to tell which is which, by ear only.",
   intro2:"You will try five different sound designs. For each, you first watch an animated figure with the sound, then practise with feedback, then do a short test by ear only.",
@@ -179,7 +179,7 @@ const T={
  },
  ja:{
   brand:"受け身 聴取テスト",
-  introEyebrow:"聴取調査 · 約12〜15分",
+  introEyebrow:"聴取調査 · 約15〜20分",
   introTitle:"受け身のミスを音で聞き分けられますか？",
   intro1:"後ろ受け身を音に変換したものを聴いていただきます。腰・腕・背中が畳に触れるたびに音が鳴ります。正しい受け身と、ミスを含む受け身があります。耳だけで区別してください。",
   intro2:"5種類の音のデザインを試します。それぞれ、まずアニメーションと音で確認し、正解が表示される練習の後、音だけの短いテストを行います。",
@@ -332,7 +332,7 @@ const J=()=> (Math.random()*2-1)*0.02;
 function timeline(type){
  const hips=0.50+J(), slapT=hips+0.28+J(), back=hips+0.34+J();
  if(type==="correct") return [["hips",hips],["wrists",slapT],["shoulders",back]];
- if(type==="late")    return [["hips",hips],["shoulders",back],["wrists",back+0.15+J()]];
+ if(type==="late")    return [["hips",hips],["shoulders",back],["wrists",back+0.08+J()]];
  if(type==="noslap")  return [["hips",hips],["shoulders",back]];
  if(type==="head")    return [["hips",hips],["wrists",slapT],["shoulders",back],["head",back+0.22+J()]];
 }
@@ -458,7 +458,7 @@ function fresh(){
 }
 async function fetchOrder(){
  if(!/^https:/.test(SUBMIT_URL)) return;
- const mine=S, ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),5000);
+ const mine=S, ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),8000);
  try{ const r=await fetch(SUBMIT_URL+"?action=order&n="+CONDITIONS.length,{signal:ctl.signal}); const j=await r.json();
   const o=(j.order||"").split(">");
   if(S===mine && (S.step==="intro"||S.step==="profile")){ if(o.length===CONDITIONS.length && CONDITIONS.every(c=>o.includes(c))){ S.order=o; S.orderSource="balanced"; } }
