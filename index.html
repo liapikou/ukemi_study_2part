@@ -98,7 +98,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   </header>
   <div class="bar" aria-hidden="true"><i id="bar"></i></div>
   <main id="app"></main>
-  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-16b · 4-button answer</p>
+  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-18 · auto-save + resume</p>
 </div>
 <script>
 (function(){
@@ -172,6 +172,7 @@ const T={
   needRank:"Please give each sound design a different place.",
   comments:"Comments (optional)", commentsPh:"What made a sound easy or hard to judge?",
   sending:"Sending…", sendFail:"Could not send. Check your internet connection and tap Submit again.",
+  resumeTitle:"Welcome back!", resumeText:"Your progress was saved. Do you want to continue where you stopped?", resumeGo:"Continue", resumeNew:"Start over",
   doneTitle:"Thank you!", done1:"Your answers have been sent. You can close this page.",
   pidNote:"Your participant code (keep it if you may want your answers deleted later):",
   names:{timbral:"A",m4:"B",m5:"C",m6:"D",m7:"E"}
@@ -235,6 +236,7 @@ const T={
   needRank:"それぞれの音のデザインに異なる順位をつけてください。",
   comments:"ご意見・ご感想（任意）", commentsPh:"判断しやすかった音、しにくかった音とその理由など",
   sending:"送信中…", sendFail:"送信できませんでした。インターネット接続を確認して、もう一度「送信」を押してください。",
+  resumeTitle:"おかえりなさい！", resumeText:"途中までの回答が保存されています。続きから再開しますか？", resumeGo:"続きから", resumeNew:"最初から",
   doneTitle:"ご協力ありがとうございました！", done1:"回答は送信されました。このページを閉じて構いません。",
   pidNote:"参加者コード（後で回答の削除を希望する場合に備えて控えてください）：",
   names:{timbral:"A",m4:"B",m5:"C",m6:"D",m7:"E"}
@@ -450,7 +452,7 @@ function fresh(){
    plan:Object.fromEntries(CONDITIONS.map(c=>[c,makeTrials()])),
    attnBlock:CONDITIONS[Math.floor(Math.random()*CONDITIONS.length)],
    trials:[],ratings:Object.fromEntries(CONDITIONS.map(c=>[c,[0,0]])),force:{trials:[],heard:{}},
-   rank:{},comments:"",started:Date.now()};
+   rank:{},comments:"",started:Date.now(),resumes:0,attempt:prevAttempts()+1};
  S.plan[S.attnBlock].test.splice(Math.floor(Math.random()*N_TEST),0,"attn");
  fetchOrder();
 }
@@ -480,6 +482,7 @@ function render(){
  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=tt(e.dataset.t));
  document.getElementById("bar").style.width=(100*unitsDone()/totalUnits())+"%";
  app.innerHTML="";
+ saveState();
  ({intro:vIntro,profile:vProfile,hp:vHp,block:vBlock,force:vForce,rank:vRank,done:vDone})[S.step]();
  window.scrollTo({top:0});
 }
@@ -669,12 +672,38 @@ function vRank(){
   if(!S.rec) S.rec=record();
   S.sending=true; const btn=s.querySelector(".btns .btn:last-child"); btn.disabled=true; btn.textContent=tt("sending");
   send(S.rec).then(ok=>{ S.sending=false; btn.disabled=false; btn.textContent=tt("submit");
-   if(ok) go("done"); else s.querySelector(".err").textContent=tt("sendFail"); });
+   if(ok){ try{ localStorage.setItem("ukemiS2.attempts",String(S.attempt||1)); }catch(e){} go("done"); } else s.querySelector(".err").textContent=tt("sendFail"); });
  }));
  app.appendChild(s);
 }
 function vDone(){
  app.appendChild(h(`<section class="step done"><div style="font-size:2.4rem;color:var(--ok)">✓</div><h1>${tt("doneTitle")}</h1><p>${tt("done1")}</p><p class="muted">${tt("pidNote")}</p><div class="pid">${S.rec?S.rec.pid:""}</div></section>`));
+}
+
+/* ================= SAVE / RESUME ================= */
+const SKEY="ukemiS2.state"; let PENDING=null;
+function prevAttempts(){ try{ return +(localStorage.getItem("ukemiS2.attempts")||0); }catch(e){ return 0; } }
+function saveState(){
+ try{
+  if(S.step==="done"){ localStorage.removeItem(SKEY); return; }
+  if(S.step==="intro") return;
+  const c=Object.assign({},S); delete c.sending; c.saved=Date.now(); c.lang=lang; c.version=VERSION;
+  localStorage.setItem(SKEY,JSON.stringify(c));
+ }catch(e){}
+}
+function loadState(){
+ try{ const j=JSON.parse(localStorage.getItem(SKEY)||"null");
+  if(j && j.version===VERSION && j.step && j.step!=="intro" && j.step!=="done" && Date.now()-j.saved<48*3600e3) return j;
+ }catch(e){} return null;
+}
+function vResume(saved){
+ PENDING=saved; document.documentElement.lang=lang;
+ document.getElementById("bar").style.width="0%"; app.innerHTML="";
+ const s=h(`<section class="step"><div><h2>${tt("resumeTitle")}</h2><p>${tt("resumeText")}</p></div></section>`);
+ const b=h(`<div class="btns"><button class="btn ghost" type="button">${tt("resumeNew")}</button><button class="btn" type="button">${tt("resumeGo")}</button></div>`);
+ b.children[0].onclick=()=>{ PENDING=null; try{ localStorage.removeItem(SKEY); localStorage.setItem("ukemiS2.attempts",String(prevAttempts()+1)); }catch(e){} fresh(); render(); };
+ b.children[1].onclick=()=>{ PENDING=null; S=saved; S.resumes=(S.resumes||0)+1; delete S.saved; initAudio(); render(); };
+ s.appendChild(b); app.appendChild(s);
 }
 
 /* ================= RECORD + SEND ================= */
@@ -685,7 +714,7 @@ function record(){
   conditions:CONDITIONS.join(">"),order:S.order.join(">"),order_source:S.orderSource,
   duration_s:Math.round((Date.now()-S.started)/1000),hp_correct:S.hp.answers.reduce((a,b)=>a+b,0),
   attn_block:S.attnBlock, attn_pass:(S.trials.find(t=>t.type==="attn")||{}).correct===true,
-  comments:S.comments.trim()};
+  comments:S.comments.trim(),resumes:S.resumes||0,attempt:S.attempt||1};
  CONDITIONS.forEach(c=>{
   const tr=S.trials.filter(t=>t.cond===c&&t.phase==="train"), te=S.trials.filter(t=>t.cond===c&&t.phase==="test"&&t.type!=="attn");
   const d=sdt(te), ef=te.filter(t=>t.errCorrect!==null);
@@ -728,11 +757,12 @@ window.addEventListener("error",e=>logErr("error",e.error||e.message));
 window.addEventListener("unhandledrejection",e=>logErr("promise",e.reason));
 
 /* ================= BOOT ================= */
-function setLang(l){ lang=l; document.getElementById("lang-en").setAttribute("aria-pressed",String(l==="en")); document.getElementById("lang-ja").setAttribute("aria-pressed",String(l==="ja")); render(); }
+function setLang(l){ lang=l; document.getElementById("lang-en").setAttribute("aria-pressed",String(l==="en")); document.getElementById("lang-ja").setAttribute("aria-pressed",String(l==="ja")); if(PENDING) vResume(PENDING); else render(); }
 document.getElementById("lang-en").onclick=()=>setLang("en");
 document.getElementById("lang-ja").onclick=()=>setLang("ja");
 window.__S2={get S(){return S;},ORDERS,williams,sdt,record};
-fresh(); render();
+fresh();
+(function(){ const sv=loadState(); if(sv){ setLang(sv.lang||"en"); vResume(sv); } else render(); })();
 })();
 </script>
 </body>
