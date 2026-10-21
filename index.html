@@ -98,7 +98,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   </header>
   <div class="bar" aria-hidden="true"><i id="bar"></i></div>
   <main id="app"></main>
-  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-18b · s2-v1 · late slap 80 ms</p>
+  <p class="muted" style="margin-top:32px;font-size:.75rem;text-align:right">build 2026-10-21 · study closed</p>
 </div>
 <script>
 (function(){
@@ -762,7 +762,13 @@ document.getElementById("lang-en").onclick=()=>setLang("en");
 document.getElementById("lang-ja").onclick=()=>setLang("ja");
 window.__S2={get S(){return S;},ORDERS,williams,sdt,record};
 fresh();
-(function(){ const sv=loadState(); if(sv){ setLang(sv.lang||"en"); vResume(sv); } else render(); })();
+/* STUDY CLOSED (2026-10-21): data collection finished at n=20 */
+const CLOSED_T={en:{t:"This study is now closed",p:"Data collection has finished. Thank you very much to everyone who took part! The results will be shared once the analysis is complete."},
+ ja:{t:"この調査は終了しました",p:"データ収集は終了しました。ご参加いただいた皆さま、本当にありがとうございました。結果は分析終了後に共有します。"}};
+function vClosed(){ document.documentElement.lang=lang; document.getElementById("bar").style.width="100%"; app.innerHTML="";
+ app.appendChild(h(`<section class="step done"><div style="font-size:2.4rem;color:var(--ok)">✓</div><h1>${CLOSED_T[lang].t}</h1><p>${CLOSED_T[lang].p}</p></section>`)); }
+render=vClosed; PENDING=null; try{ localStorage.removeItem(SKEY); }catch(e){}
+vClosed();
 })();
 </script>
 </body>
